@@ -43,8 +43,8 @@ jobs:
       - name: go test -race -covermode=atomic
         run: GOPRIVATE='github.com/gdcorp-*' ; CGO_ENABLED='0' ;  GO111MODULE='on' ; go test -race -coverprofile=coverage.gcov -covermode=atomic ./...
 
-      - name: gdcorp-action-public-forks/gcov2lcov-action
-        uses: gdcorp-action-public-forks/gcov2lcov-action@dc5d2c7d8d1ed28bba89bff66f1581ca3e3a25fc # v1.1
+      - name: jandelgado/gcov2lcov-action
+        uses: jandelgado/gcov2lcov-action@v1.0.9
         with:
           infile: coverage.gcov
           outfile: coverage.lcov
