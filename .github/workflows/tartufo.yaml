@@ -24,4 +24,4 @@ jobs:
           ref: ${{ env.target_ref }}
 
       - name: Scan with Tartufo
-        uses: godaddy/tartufo-action@v3.1.4
+        uses: godaddy/tartufo-action@4.1.0
