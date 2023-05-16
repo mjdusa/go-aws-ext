@@ -34,13 +34,13 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
 
-      - name: go version
-        run: go version
+      - name: go env
+        run: go env
 
       - name: go clean --cache
         run: go clean --cache
 
-      - name: GOPRIVATE='github.com/gdcorp-*' ; CGO_ENABLED='0' ;  GO111MODULE='on' ; go test -race -coverprofile=coverage.gcov -covermode=atomic ./...
+      - name: go test -race -covermode=atomic
         run: GOPRIVATE='github.com/gdcorp-*' ; CGO_ENABLED='0' ;  GO111MODULE='on' ; go test -race -coverprofile=coverage.gcov -covermode=atomic ./...
 
       - name: gdcorp-action-public-forks/gcov2lcov-action
