@@ -37,13 +37,6 @@ jobs:
           repository: ${{ github.repository }}
           ref: ${{ env.target_ref }}
           github-token: ${{ env.CI_TOKEN }}
-          fetch-depth: 0
-          ssh-strict: true
-          persist-credentials: true
-          clean: true
-          lfs: false
-          submodules: false
-          set-safe-directory: true
 
       - name: Run GoLang Linter
         uses: gdcorp-action-public-forks/golangci-lint-action@cc219790cbeccbdecb249751a64f48f25cf356ff #v2.5.3
