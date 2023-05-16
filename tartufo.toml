@@ -1,0 +1,16 @@
+[tool.tartufo]
+cleanup = true
+entropy = true
+exclude-signatures = [
+  # {signature="", reason=""},
+]
+exclude-path-patterns = [
+  { path-pattern = "tartufo.toml", reason='tartufo config file'},
+  { path-pattern = ".github/actions/", reason='github Actions'},
+  { path-pattern = ".github/workflows/", reason='github Workflows'},
+  { path-pattern = "go.mod", reason='checksums of git checkout'},
+  { path-pattern = "go.sum", reason='checksums of golang dependencies'},
+]
+json = false
+regex = true
+repo-path = "."

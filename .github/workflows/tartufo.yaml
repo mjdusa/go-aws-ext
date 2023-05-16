@@ -1,0 +1,27 @@
+name: Tartufo
+
+on:
+  workflow_dispatch:
+
+  workflow_call:
+
+env:
+  target_ref: ${{ github.head_ref || github.ref_name }}
+
+jobs:
+  tartufo:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: actions/checkout
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ env.target_ref }}
+
+      - name: Scan with Tartufo
+        uses: godaddy/tartufo-action@v3.1.4

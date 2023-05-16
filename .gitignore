@@ -1,0 +1,44 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.dylib
+*.o
+*.a
+*.so
+*.prof
+
+# Test binary, built with `go test -c`
+*.test
+
+# IDE specific metadata
+.vscode/
+.idea/
+
+# Apple fodder
+.DS_Store
+
+# Test and Lint output files
+*.out
+*.gcov
+*.lcov
+*.log
+
+# Temp files directory
+tmp/
+
+# exclude python virtual env folder used by local tartufo
+.venv/
+
+# exclude go lang vendor folder added in go 1.18
+vendor/
+
+# misc
+build/
+junit_results.xml
+cobertura-coverage.xml
+report.json
+config/out
+.git_tag
+checkstyle-result.xml
+dist/

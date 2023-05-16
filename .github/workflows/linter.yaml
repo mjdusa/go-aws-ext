@@ -1,0 +1,52 @@
+name: Linter
+
+on:
+  workflow_dispatch:
+
+  workflow_call:
+
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+env:
+  target_ref: ${{ github.head_ref || github.ref_name }}
+  GO111MODULE: on
+
+jobs:
+  linter:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Initialize Environment
+        id: init-env
+        run: |
+          echo "Initialize Environment"
+
+      - name: Checkout codebase
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+        with:
+          repository: ${{ github.repository }}
+          token: ${{ env.CI_TOKEN }}
+          fetch-depth: 0
+          ssh-strict: true
+          persist-credentials: true
+          clean: true
+          lfs: false
+          submodules: false
+          set-safe-directory: true
+
+      - name: Run GoLang Linter
+        uses: gdcorp-action-public-forks/golangci-lint-action@cc219790cbeccbdecb249751a64f48f25cf356ff #v2.5.3
+        with:
+          args: --tests=false
+          version: latest
+          skip-pkg-cache: true
