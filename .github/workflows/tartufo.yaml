@@ -22,7 +22,7 @@ jobs:
         with:
           repository: ${{ github.repository }}
           ref: ${{ env.target_ref }}
-          token: ${{ env.CI_TOKEN }}
+          github-token: ${{ env.CI_TOKEN }}
 
       - name: Scan with Tartufo
         uses: godaddy/tartufo-action@4.1.0
