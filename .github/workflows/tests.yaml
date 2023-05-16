@@ -27,6 +27,7 @@ jobs:
         with:
           repository: ${{ github.repository }}
           ref: ${{ env.target_ref }}
+          token: ${{ env.CI_TOKEN }}
 
       - name: actions/setup-go
         uses: actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753 # v4.0.1
