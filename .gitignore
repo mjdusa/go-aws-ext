@@ -33,12 +33,11 @@ tmp/
 # exclude go lang vendor folder added in go 1.18
 vendor/
 
-# misc
+# build artifacts
 build/
+dist/
 junit_results.xml
 cobertura-coverage.xml
 report.json
-config/out
 .git_tag
 checkstyle-result.xml
-dist/
