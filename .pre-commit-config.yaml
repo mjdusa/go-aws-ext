@@ -1,5 +1,32 @@
 repos:
-- repo: https://github.com/godaddy/tartufo
-  rev: v3.1.4
-  hooks:
-  - id: tartufo
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+    -   id: check-json
+    -   id: check-merge-conflict
+    -   id: check-symlinks
+    -   id: check-toml
+    -   id: check-xml
+    -   id: check-yaml
+    -   id: detect-private-key
+    -   id: destroyed-symlinks
+    -   id: detect-private-key
+    -   id: end-of-file-fixer
+    -   id: fix-byte-order-marker
+    -   id: forbid-new-submodules
+    -   id: mixed-line-ending
+    #-   id: no-commit-to-branch
+    -   id: pretty-format-json
+        args: [ --autofix ]
+    -   id: trailing-whitespace
+        args: [ --markdown-linebreak-ext=md ]
+-   repo: https://github.com/godaddy/tartufo
+    rev: v4.1.0
+    hooks:
+    -   id: tartufo
+        name: tartufo
+        entry: tartufo
+        args: [pre-commit]
+        language: python
+        language_version: python3.11.3
+        pass_filenames: false
