@@ -5,6 +5,10 @@ on:
 
   workflow_call:
 
+  push:
+
+  pull_request:
+
 env:
   target_ref: ${{ github.head_ref || github.ref_name }}
 
