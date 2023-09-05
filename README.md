@@ -6,7 +6,7 @@ Go AWS extensions library
 
 ## Setting up for development
 
-1. Clone Repo
+1. Clone Repository
 git clone <LINK>
 
 2. Setup Pre-commit Hooks
