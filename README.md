@@ -10,7 +10,7 @@ Go AWS extensions library
 git clone <LINK>
 
 2. Setup Pre-commit Hooks
-When you clone this repository to your workstation, make sure to install the [pre-commit](https://pre-commit.com/) hooks. [GitHub Repo](https://github.com/pre-commit/pre-commit)
+When you clone this repository to your workstation, make sure to install the [pre-commit](https://pre-commit.com/) hooks. [GitHub Repository](https://github.com/pre-commit/pre-commit)
 
 * Installing tools
 ```bash
