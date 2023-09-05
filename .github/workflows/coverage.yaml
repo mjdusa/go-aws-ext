@@ -1,5 +1,5 @@
 ---
-name: tests
+name: coverage
 
 on:
   workflow_dispatch:
@@ -20,8 +20,8 @@ env:
   GOPRIVATE: ''
 
 jobs:
-  tests:
-    name: Tests
+  coverage:
+    name: Coverage
     strategy:
       matrix:
         go-version: [1.21.x]
@@ -36,6 +36,8 @@ jobs:
           repository: ${{ github.repository }}
           ref: ${{ env.target_ref }}
           token: ${{ github.token }}
+          persist-credentials: false  # otherwise, the token used is the GITHUB_TOKEN, instead of your
+          #                             personal access token.
           fetch-depth: 0
 
       - name: actions/setup-go
@@ -49,12 +51,11 @@ jobs:
       - name: go mod tidy
         run: go mod tidy
 
-      - name: go clean
+      - name: go clean --cache
         run: go clean --cache
 
       - name: go test
         run: |
           go env
-          go test -v -race -coverprofile=coverprofile.gcov -covermode=atomic ./...
-          go test -v -coverprofile=coverprofile.gcov -covermode=count ./...
-          go tool cover -func=coverprofile.gcov -o=coverage.out
+          go test -v ./... -covermode=count -coverprofile=coverage.out
+          go tool cover -func=coverage.out -o=coverage.out

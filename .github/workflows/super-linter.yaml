@@ -1,0 +1,44 @@
+---
+name: super-linter
+
+on:
+  workflow_dispatch:
+
+  workflow_call:
+
+  push:
+
+  pull_request:
+
+env:
+  target_ref: ${{ github.head_ref || github.ref_name }}
+  GO111MODULE: on
+  GOPRIVATE: ''
+
+jobs:
+  super-linter:
+    name: Super-Linter
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: actions/checkout
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744  # v3.6.0
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ env.target_ref }}
+          token: ${{ github.token }}
+          fetch-depth: 0
+
+      - name: super-linter/super-linter
+        uses: super-linter/super-linter@latest
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ github.token }}
+          LOG_LEVEL: VERBOSE
+          VALIDATE_ALL_CODEBASE: true
+          VALIDATE_EDITORCONFIG: false
+          VALIDATE_GITHUB_ACTIONS: false

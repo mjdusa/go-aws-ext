@@ -1,0 +1,10 @@
+{
+  "absolute": true,
+  "ignore": [
+    "**/*_test.go"
+  ],
+  "reporters": [
+    "consoleFull"
+  ],
+  "threshold": 0
+}

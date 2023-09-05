@@ -1,18 +1,28 @@
 GIT_REPO:=github.com/mdonahue-godaddy/go-aws-ext
 BRANCH:=$(shell git rev-parse --abbrev-ref HEAD)
-COMMIT:=$(shell git log --pretty=format:'%h' -n 1)
+COMMIT:=$(shell git log --pretty=format:'%H' -n 1)
 BUILD_TS:=$(shell date -u "+%Y-%m-%dT%TZ")
+BUILD_DIR:=dist
 GO_VERSION:=$(shell go version | sed -r 's/go version go(.*)\ .*/\1/')
 GOBIN:=${GOPATH}/bin
 
-GOFLAGS:=" GOPRIVATE='github.com/gdcorp-*' ; "
-GOFLAGS+=" CGO_ENABLED='0' ; "
-GOFLAGS+=" GO111MODULE='on' ; "
+GOFLAGS = -a
+LDFLAGS =
+#GOCMD = GOPRIVATE='github.com/gdcorp-*' ; CGO_ENABLED='0' ; GO111MODULE='on' ; go
+GOCMD = GOPRIVATE='github.com/gdcorp-*' ; GO111MODULE='on' ; go
 
-GOCMD:=$(GOFLAGS) go
+LINTER_REPORT = $(BUILD_DIR)/golangci-lint-$(BUILD_TS).out
+COVERAGE_REPORT = $(BUILD_DIR)/unit-test-coverage-$(BUILD_TS)
 
-LINTER_REPORT:="golangci-lint-$(BUILD_TS).out"
-COVERAGE_REPORT="unit-test-coverage-$(BUILD_TS)"
+.PHONY: clean
+clean:
+	@echo "clean"
+	rm -rf $(BUILD_DIR)
+	go clean --cache
+
+.PHONY: $(BUILD_DIR)
+$(BUILD_DIR):
+	mkdir -p $@
 
 .PHONY: installdep
 installdep:
@@ -33,22 +43,11 @@ endif
 init: installdep
 ifeq (,$(wildcard ./.git/hooks/pre-commit))
 	@echo "Adding pre-commit hook to .git/hooks/pre-commit"
-	@ln -s $(shell pwd)/hooks/pre-commit $(shell pwd)/.git/hooks/pre-commit || true
+	ln -s $(shell pwd)/hooks/pre-commit $(shell pwd)/.git/hooks/pre-commit || true
 endif
 
-.PHONY: setup
-setup: init
-	@echo "git init"
-	@git init
-
-.PHONY: clean
-clean:
-	@echo "clean"
-	@rm -f *.out *.gcov *.lcov $(APP_NAME)
-	@go clean --cache
-
 .PHONY: prebuild
-prebuild: clean
+prebuild: init $(BUILD_DIR)
 	@echo "Running go mod tidy & vendor"
 	@go version
 	@go env
@@ -61,28 +60,28 @@ prebuild: clean
 .PHONY: golangcilint
 golangcilint: init
 	@echo "Running golangci-lint"
-	@${GOPATH}/bin/golangci-lint  --version
-	@${GOPATH}/bin/golangci-lint  run --verbose > "$(LINTER_REPORT)"
+	${GOPATH}/bin/golangci-lint --version
+	${GOPATH}/bin/golangci-lint run --verbose --config .github/linters/.golangci.yml \
+	  --issues-exit-code 0 --out-format=checkstyle > "$(LINTER_REPORT)"
 
 .PHONY: lint
 lint: installdep golangcilint
 
 .PHONY: unittest
-unittest: init
-	@echo "go test -coverprofile=\"$(COVERAGE_REPORT).gcov\" ./..."
-	@go test -coverprofile="$(COVERAGE_REPORT).gcov" ./... && gcov2lcov -infile "$(COVERAGE_REPORT).gcov" -outfile "$(COVERAGE_REPORT).lcov"
-	@go tool cover -func="$(COVERAGE_REPORT).gcov"
-#	@go tool cover -html="$(COVERAGE_REPORT).gcov"
-#	@cat "$(COVERAGE_REPORT).gcov"
-#	@cat "$(COVERAGE_REPORT).lcov"
+unittest: init $(BUILD_DIR)
+	$(GOCMD) test -coverprofile="$(COVERAGE_REPORT).gcov" ./... && gcov2lcov -infile "$(COVERAGE_REPORT).gcov" -outfile "$(COVERAGE_REPORT).lcov"
+	$(GOCMD) tool cover -func="$(COVERAGE_REPORT).gcov"
+#	$(GOCMD) tool cover -html="$(COVERAGE_REPORT).gcov"
+#	gcov2lcov -infile "$(COVERAGE_REPORT).gcov" -outfile "$(COVERAGE_REPORT).lcov"
+#	cat "$(COVERAGE_REPORT).gcov"
+#	cat "$(COVERAGE_REPORT).lcov"
 
 .PHONY: racetest
 racetest:
-	@echo "go test -race ./..."
-	@go test -race ./...
+	$(GOCMD) test -race ./...
 
 .PHONY: test
 test: unittest racetest
 
 .PHONY: all
-all: clean lint test
+all: clean $(BUILD_DIR) lint test
