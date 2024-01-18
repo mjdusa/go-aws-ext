@@ -1,4 +1,4 @@
-module github.com/mdonahue-godaddy/go-aws-ext
+module github.com/mjdusa/go-aws-ext
 
 go 1.21
 

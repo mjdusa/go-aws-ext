@@ -13,7 +13,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	smmocks "github.com/mdonahue-godaddy/go-aws-ext/aws/secretsmanager/mocks"
+	smmocks "github.com/mjdusa/go-aws-ext/aws/secretsmanager/mocks"
 )
 
 func CreateContext() context.Context {
