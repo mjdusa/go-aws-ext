@@ -8,8 +8,8 @@ GOBIN:=${GOPATH}/bin
 
 GOFLAGS = -a
 LDFLAGS =
-#GOCMD = GOPRIVATE='github.com/gdcorp-*' ; CGO_ENABLED='0' ; GO111MODULE='on' ; go
-GOCMD = GOPRIVATE='github.com/gdcorp-*' ; GO111MODULE='on' ; go
+#GOCMD = GOPRIVATE='' ; CGO_ENABLED='0' ; GO111MODULE='on' ; go
+GOCMD = GOPRIVATE='' ; GO111MODULE='on' ; go
 
 LINTER_REPORT = $(BUILD_DIR)/golangci-lint-$(BUILD_TS).out
 COVERAGE_REPORT = $(BUILD_DIR)/unit-test-coverage-$(BUILD_TS)
@@ -51,7 +51,7 @@ prebuild: init $(BUILD_DIR)
 	@echo "Running go mod tidy & vendor"
 	@go version
 	@go env
-	@go env -w GOPRIVATE="github.com/gdcorp-*"
+	@go env -w GOPRIVATE=""
 	@go env -w CGO_ENABLED="0"
 	@go env -w GO111MODULE="on"
 	@go env
