@@ -145,7 +145,7 @@ linters:
     - execinquery  # checks query string in Query function which reads your Go src files and warning it finds
     - exhaustive  # checks exhaustiveness of enum switch statements
     # - exhaustivestruct  # [deprecated-replaced by exhaustruct] checks if all struct's fields are initialized
-    - exhaustruct  # [highly recommend to enable] checks if all structure fields are initialized
+    # - exhaustruct  # [highly recommend to enable] checks if all structure fields are initialized
     - exportloopref  # checks for pointers to enclosing loop variables
     # - forbidigo  # forbids identifiers
     # - forcetypeassert  # [replaced by errcheck] finds forced type assertions

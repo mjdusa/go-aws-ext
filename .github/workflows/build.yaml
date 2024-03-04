@@ -1,0 +1,113 @@
+---
+name: build
+
+on:
+  workflow_dispatch:
+
+  workflow_call:
+
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+env:
+  target_ref: ${{ github.head_ref || github.ref_name }}
+  GO111MODULE: on
+  GOPRIVATE: ''
+
+jobs:
+  build:
+    name: Build
+    strategy:
+      matrix:
+        go-version: ['stable']  # only use ONE version of go here or the upload-artifact will fail
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: actions/checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ env.target_ref }}
+          token: ${{ github.token }}
+          persist-credentials: false  # otherwise, the token used is the GITHUB_TOKEN, instead of your
+          #                             personal access token.
+          fetch-depth: 0
+
+      - name: actions/setup-go
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491  # v5.0.0
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: go version
+        run: |
+          go version
+          go env
+
+      - name: go mod tidy
+        run: |
+          go mod tidy
+
+      - name: go clean --cache
+        run: |
+          go clean --cache
+
+      - name: golangci/golangci-lint-action
+        uses: golangci/golangci-lint-action@3cfe3a4abbb849e10058ce4af15d205b6da42804  # v4.0.0
+        with:
+          # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest`
+          # to use the latest version
+          version: latest
+
+          # Optional: working directory, useful for monorepos
+          # working-directory: somedir
+
+          # Optional: golangci-lint command line arguments.
+          # args: --issues-exit-code=0
+          args: --tests=true --timeout=1m --config=.github/linters/.golangci.yml --issues-exit-code=0
+
+          # Optional: show only new issues if it's a pull request. The default value is `false`.
+          # only-new-issues: true
+
+          # Optional: if set to true then the all caching functionality will be complete disabled,
+          #           takes precedence over all other caching options.
+          # skip-cache: true
+
+          # Optional: if set to true then the action don't cache or restore ~/go/pkg.
+          skip-pkg-cache: true
+
+          # Optional: if set to true then the action don't cache or restore ~/.cache/go-build.
+          # skip-build-cache: true
+
+      - name: go test
+        run: |
+          go env
+          go test -v -race -coverprofile=coverage.gcov -covermode=atomic ./...
+          go test -v -coverprofile=coverage.gcov -covermode=count ./...
+          go tool cover -func=coverage.gcov -o=coverage.out
+
+      - name: jandelgado/gcov2lcov-action
+        uses: jandelgado/gcov2lcov-action@c680c0f7c7442485f1749eb2a13e54a686e76eb5  # v1.0.9
+        with:
+          infile: coverage.gcov
+          outfile: coverage.lcov
+
+      - name: VeryGoodOpenSource/very_good_coverage
+        uses: VeryGoodOpenSource/very_good_coverage@3b475421464c564c0714d92ce02742bd81fa9eda  # v2.2.0
+        with:
+          path: coverage.lcov
+          min_coverage: 90
+
+      # Upload generated artifacts for historical reference
+      - name: actions/upload-artifact
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3  # v4.3.1
+        with:
+          name: test-reports
+          path: ./coverage.*
+          retention-days: 180

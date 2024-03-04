@@ -7,8 +7,15 @@ on:
   workflow_call:
 
   push:
+    branches:
+      - main
 
   pull_request:
+    branches:
+      - main
+
+# Don't grant any access by default
+permissions: {}
 
 env:
   target_ref: ${{ github.head_ref || github.ref_name }}
@@ -24,6 +31,14 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
+    ############################################
+    # Grant status permission for MULTI_STATUS #
+    ############################################
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+
     steps:
       - name: actions/checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
@@ -31,14 +46,16 @@ jobs:
           repository: ${{ github.repository }}
           ref: ${{ env.target_ref }}
           token: ${{ github.token }}
+          persist-credentials: false  # otherwise, the token used is the GITHUB_TOKEN, instead of your
+          #                             personal access token.
           fetch-depth: 0
 
+      - name: Load super-linter configuration
+        run: |
+          cat .github/super-linter.env >> ${GITHUB_ENV}
+          env
+
       - name: super-linter/super-linter
-        uses: super-linter/super-linter@latest
+        uses: super-linter/super-linter@e0fc164bba85f4b58c6cd17ba1dfd435d01e8a06  # v6.3.0
         env:
-          DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ github.token }}
-          LOG_LEVEL: VERBOSE
-          VALIDATE_ALL_CODEBASE: true
-          VALIDATE_EDITORCONFIG: false
-          VALIDATE_GITHUB_ACTIONS: false
