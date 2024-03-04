@@ -40,7 +40,7 @@ else
 endif
 
 .PHONY: init
-init: installdep
+init: installdep 
 ifeq (,$(wildcard ./.git/hooks/pre-commit))
 	@echo "Adding pre-commit hook to .git/hooks/pre-commit"
 	ln -s $(shell pwd)/hooks/pre-commit $(shell pwd)/.git/hooks/pre-commit || true
@@ -65,7 +65,7 @@ golangcilint: init
 	  --issues-exit-code 0 --out-format=checkstyle > "$(LINTER_REPORT)"
 
 .PHONY: lint
-lint: installdep golangcilint
+lint: $(BUILD_DIR) installdep golangcilint
 
 .PHONY: unittest
 unittest: init $(BUILD_DIR)
