@@ -1,5 +1,5 @@
 ---
-name: build
+name: CI
 
 on:
   workflow_dispatch:
@@ -20,8 +20,8 @@ env:
   GOPRIVATE: ''
 
 jobs:
-  build:
-    name: Build
+  ci:
+    name: CI
     strategy:
       matrix:
         go-version: ['stable']  # only use ONE version of go here or the upload-artifact will fail
