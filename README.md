@@ -57,5 +57,5 @@ docker run --rm -e RUN_LOCAL=true --env-file ".github/super-linter.env" -v $PWD:
 
 ### Running golangci-lint Locally
 ```bash
-golangci-lint run --config .github/linters/.golangci.yml --issues-exit-code 0 --out-format=checkstyle
+golangci-lint run --verbose --tests=true --config=.github/linters/.golangci.yml --issues-exit-code=0 --out-format=checkstyle
 ```
