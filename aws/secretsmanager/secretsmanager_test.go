@@ -1,19 +1,17 @@
-package tools
+package tools_test
 
 import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
-
-	"github.com/stretchr/testify/assert"
-
+	tools "github.com/mjdusa/go-aws-ext/aws/secretsmanager"
 	smmocks "github.com/mjdusa/go-aws-ext/aws/secretsmanager/mocks"
+	"github.com/stretchr/testify/assert"
 )
 
 func CreateContext() context.Context {
@@ -22,21 +20,22 @@ func CreateContext() context.Context {
 
 func Test_NewSmFactory_Good(t *testing.T) {
 	region := "us-west-2"
-	os.Setenv("AWS_REGION", region)
-	assert.NotPanics(t, func() { _ = NewSmFactory() }, "NewSmFactory() should not Panic()")
-	os.Unsetenv("AWS_REGION")
+	t.Setenv("AWS_REGION", region)
+	assert.NotPanics(t, func() { _ = tools.NewSmFactory() }, "NewSmFactory() should not Panic()")
+	t.Setenv("AWS_REGION", "")
 }
 
 func Test_NewSmFactory_Panic(t *testing.T) {
-	os.Unsetenv("AWS_REGION")
-	assert.Panics(t, func() { _ = NewSmFactory() }, "NewSmFactory() should Panic()")
+	t.Setenv("AWS_REGION", "")
+	assert.Panics(t, func() { _ = tools.NewSmFactory() }, "NewSmFactory() should Panic()")
 }
 
 func Test_NewSecretsManagerFactoryWithRegion_Good(t *testing.T) {
 	sess := session.Must(session.NewSession())
 	region := "us-west-2"
 
-	assert.NotPanics(t, func() { _ = NewSecretsManagerFactoryWithRegion(sess, &region) }, "NewSecretsManagerFactoryWithRegion(...) should not Panic()")
+	assert.NotPanics(t, func() { _ = tools.NewSecretsManagerFactoryWithRegion(sess, &region) },
+		"NewSecretsManagerFactoryWithRegion(...) should not Panic()")
 }
 
 func Test_NewSecretsManagerFactoryWithConfig_Good(t *testing.T) {
@@ -45,7 +44,8 @@ func Test_NewSecretsManagerFactoryWithConfig_Good(t *testing.T) {
 	cfg := aws.NewConfig()
 	cfg.Region = &region
 
-	assert.NotPanics(t, func() { _ = NewSecretsManagerFactoryWithConfig(sess, cfg) }, "NewSecretsManagerFactoryWithConfig(...) should not Panic()")
+	assert.NotPanics(t, func() { _ = tools.NewSecretsManagerFactoryWithConfig(sess, cfg) },
+		"NewSecretsManagerFactoryWithConfig(...) should not Panic()")
 }
 
 func Test_GetSecretString_GoodString(t *testing.T) {
@@ -55,7 +55,7 @@ func Test_GetSecretString_GoodString(t *testing.T) {
 		SecretString: aws.String(expected),
 	}, nil)
 
-	f := NewSecretsManagerFactory(mockClient)
+	f := tools.NewSecretsManagerFactory(mockClient)
 
 	actual, err := f.GetSecretString("foo")
 
@@ -70,7 +70,7 @@ func Test_GetSecretString_DecodeError(t *testing.T) {
 		SecretBinary: badBytes,
 	}, nil)
 
-	f := NewSecretsManagerFactory(mockClient)
+	f := tools.NewSecretsManagerFactory(mockClient)
 
 	actual, err := f.GetSecretString("foo")
 
@@ -89,7 +89,7 @@ func Test_GetSecretString_GoodBinary(t *testing.T) {
 		SecretBinary: encodedBinarySecretBytes,
 	}, nil)
 
-	f := NewSecretsManagerFactory(mockClient)
+	f := tools.NewSecretsManagerFactory(mockClient)
 
 	actual, err := f.GetSecretString("foo")
 
@@ -104,7 +104,7 @@ func Test_Nil_GetSecretString(t *testing.T) {
 		SecretString: nil,
 	}, nil)
 
-	f := NewSecretsManagerFactory(mockClient)
+	f := tools.NewSecretsManagerFactory(mockClient)
 
 	actual, err := f.GetSecretString("foo")
 
@@ -117,7 +117,7 @@ func Test_GetSecretString_Error(t *testing.T) {
 	mockClient := smmocks.NewMockSMClient(nil, fmt.Errorf(errMsg))
 	expectedErrorMessage := fmt.Sprintf("GetSecretValue error: %s", errMsg)
 
-	f := NewSecretsManagerFactory(mockClient)
+	f := tools.NewSecretsManagerFactory(mockClient)
 
 	actual, err := f.GetSecretString("foo")
 
