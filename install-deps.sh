@@ -12,7 +12,15 @@ if [ ! -f "${GOBIN}/gcov2lcov" ]; then
 	go install github.com/jandelgado/gcov2lcov@latest
 fi
 
-if [ ! -f "$(pwd)/.git/hooks/pre-commit" ] && [ -f "$(pwd)/hooks/pre-commit" ]; then
-	echo "Adding pre-commit hook to $(pwd)/.git/hooks/pre-commit"
-	ln -s "$(pwd)/hooks/pre-commit" "$(pwd)/.git/hooks/pre-commit" || true
+if [ ! -f "$(which pre-commit)" ]; then
+	echo "Brew installing pre-commit"
+	brew install pre-commit || true
+fi
+
+if [ -f "$(which pre-commit)" ]; then
+	echo "pre-commit=[$(which pre-commit)]"
+	if [ ! -f "$(pwd)/.git/hooks/pre-commit" ]; then
+		echo "Installing pre-commit hook to $(pwd)/.git/hooks/pre-commit"
+		pre-commit install
+	fi
 fi
