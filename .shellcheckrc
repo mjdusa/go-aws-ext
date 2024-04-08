@@ -1,0 +1,2 @@
+disable=SC2046  # Disable quote this to prevent word splitting.
+disable=SC2162  # Disable read without -r will mangle backslashes.
