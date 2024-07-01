@@ -3,7 +3,7 @@ module github.com/mjdusa/go-aws-ext
 go 1.22
 
 require (
-	github.com/aws/aws-sdk-go v1.54.6
+	github.com/aws/aws-sdk-go v1.54.11
 	github.com/stretchr/testify v1.9.0
 )
 
