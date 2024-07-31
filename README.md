@@ -7,9 +7,11 @@ Go AWS extensions library
 ## Setting up for development
 
 1. Clone Repository
-git clone <LINK>
+```bash
+git clone https://github.com/mjdusa/go-aws-ext
+```
 
-2. Setup Pre-commit Hooks
+3. Setup Pre-commit Hooks
 When you clone this repository to your workstation, make sure to install the [pre-commit](https://pre-commit.com/) hooks. [GitHub Repository](https://github.com/pre-commit/pre-commit)
 
 * Installing tools
@@ -28,7 +30,7 @@ pre-commit 3.3.2
 pre-commit autoupdate
 ```
 
-* Install pre-commit into the local git.
+* Install pre-commit into the local instance of git.
 ```bash
 pre-commit install --install-hooks
 ```
