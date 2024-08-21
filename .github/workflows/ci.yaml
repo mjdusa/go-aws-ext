@@ -14,6 +14,9 @@ on:
     branches:
       - main
 
+# Don't grant any access by default
+permissions: {}
+
 env:
   target_ref: ${{ github.head_ref || github.ref_name }}
   GO111MODULE: on
@@ -21,7 +24,7 @@ env:
 
 jobs:
   ci:
-    name: CI
+    name: ci
     strategy:
       matrix:
         go-version: ['stable']  # only use ONE version of go here or the upload-artifact will fail
@@ -29,9 +32,17 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
+    ############################################
+    # Grant status permission for MULTI_STATUS #
+    ############################################
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+
     steps:
       - name: actions/checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332  # v4.1.7
+        uses: actions/checkout@v4
         with:
           repository: ${{ github.repository }}
           ref: ${{ env.target_ref }}
@@ -41,31 +52,37 @@ jobs:
           fetch-depth: 0
 
       - name: actions/setup-go
-        uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32  # v5.0.2
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
 
-      - name: go version
+      - name: go version, env, & clean --cache
         run: |
           go version
           go env
+          go clean --cache
 
       - name: go mod tidy
         run: |
           go mod tidy
 
-      - name: go clean --cache
-        run: |
-          go clean --cache
-
       - name: golangci/golangci-lint-action
-        uses: golangci/golangci-lint-action@a4f60bb28d35aeee14e6880718e0c85ff1882e64  # v6.0.1
+        uses: golangci/golangci-lint-action@v6
         with:
           # Require: The version of golangci-lint to use.
           # When `install-mode` is `binary` (default) the value can be v1.2 or v1.2.3 or `latest` to use the
           # latest version. When `install-mode` is `goinstall` the value can be v1.2.3, `latest`, or the hash
           # of a commit.
           version: latest
+
+          # Optional: The mode to install golangci-lint. It can be 'binary' or 'goinstall'.
+          # install-mode: "goinstall"
+
+          # Optional: When using only-new-issues option, the GitHub API is used, so a token is required.
+          # github-token:
+
+          # Optional: show only new issues if it's a pull request. The default value is `false`.
+          # only-new-issues:
 
           # Optional: working directory, useful for monorepos
           # working-directory: somedir
@@ -79,24 +96,22 @@ jobs:
             --tests=true
             --timeout=1m
             --config=.github/linters/.golangci.yml
-            --issues-exit-code=0
+            --issues-exit-code=1
 
-          # Optional: show only new issues if it's a pull request. The default value is `false`.
-          # only-new-issues: true
+          # Optional: Force the usage of the embedded problem matchers.
+          # problem-matchers: true
 
-          # Optional: if set to true, then all caching functionality will be completely disabled,
-          #           takes precedence over all other caching options.
+          # Optional: If set to true, then all caching functionality will be completely
+          # disabled, takes precedence over all other caching options.
           # skip-cache: true
 
-          # Optional: if set to true, then the action won't cache or restore ~/go/pkg.
-          # skip-pkg-cache: true
-          skip-pkg-cache: true
+          # Optional: If set to true, caches will not be saved, but they may still be
+          # restored, required skip-cache: false.
+          # skip-save-cache: true
 
-          # Optional: if set to true, then the action won't cache or restore ~/.cache/go-build.
-          # skip-build-cache: true
-
-          # Optional: The mode to install golangci-lint. It can be 'binary' or 'goinstall'.
-          # install-mode: "goinstall"
+          # Optional: Periodically invalidate the cache every cache-invalidation-interval
+          # days to ensure that outdated data is removed and fresh data is loaded.
+          # cache-invalidation-interval: 7
 
       - name: go test
         run: |
@@ -106,20 +121,20 @@ jobs:
           go tool cover -func=coverage.gcov -o=coverage.out
 
       - name: jandelgado/gcov2lcov-action
-        uses: jandelgado/gcov2lcov-action@c680c0f7c7442485f1749eb2a13e54a686e76eb5  # v1.0.9
+        uses: jandelgado/gcov2lcov-action@v1
         with:
           infile: coverage.gcov
           outfile: coverage.lcov
 
       - name: VeryGoodOpenSource/very_good_coverage
-        uses: VeryGoodOpenSource/very_good_coverage@c953fca3e24a915e111cc6f55f03f756dcb3964c  # v3.0.0
+        uses: VeryGoodOpenSource/very_good_coverage@v3
         with:
           path: coverage.lcov
           min_coverage: 50
 
       # Upload generated artifacts for historical reference
       - name: actions/upload-artifact
-        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b  # v4.3.4
+        uses: actions/upload-artifact@v4
         with:
           name: test-reports
           path: ./coverage.*
