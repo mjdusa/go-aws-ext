@@ -113,9 +113,10 @@ func Test_Nil_GetSecretString(t *testing.T) {
 }
 
 func Test_GetSecretString_Error(t *testing.T) {
-	errMsg := "Oops"
-	mockClient := smmocks.NewMockSMClient(nil, fmt.Errorf(errMsg))
-	expectedErrorMessage := fmt.Sprintf("GetSecretValue error: %s", errMsg)
+	eerrMsg := "s"
+	eerr := fmt.Errorf("Oop%s", eerrMsg)
+	mockClient := smmocks.NewMockSMClient(nil, eerr)
+	expectedErrorMessage := fmt.Sprintf("GetSecretValue error: %s", eerr.Error())
 
 	f := tools.NewSecretsManagerFactory(mockClient)
 
