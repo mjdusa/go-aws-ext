@@ -2,7 +2,7 @@
 SHELL=/bin/bash
 
 BUILD_TS:=$(shell date -u +"%Y-%m-%d_%H%M%S%Z")
-BUILD_DIR:=./build
+BUILD_DIR:=./bld
 DIST_DIR:=./dist
 
 APP_NAME:=go-aws-ext
@@ -23,7 +23,7 @@ GIT_REPO:=$(subst $(PREFIX),$(EMPTY),$(subst $(SUFFIX),$(EMPTY),$(GIT_REPO_URL))
 
 # Go parameters
 GOCMD=go
-GOBINPATH=$(shell $(GOCMD) env GOPATH)/bin
+GOBIN=$(shell $(GOCMD) env GOPATH)/bin
 GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 GOENV=$(GOCMD) env
@@ -36,8 +36,6 @@ GOTEST=$(GOCMD) test
 GOTOOL=$(GOCMD) tool
 
 GO_VERSION:=$(shell go version | sed -r 's/go version go(.*)\ .*/\1/')
-
-GOBIN:=${GOPATH}/bin
 
 GOFLAGS = -a
 LDFLAGS = -s -w
@@ -107,22 +105,27 @@ prebuild: init clean goclean $(BUILD_DIR) $(DIST_DIR) go.mod
 	$(GOCMD) version
 	$(GOENV)
 
-.PHONY: golangcilint
-golangcilint: init $(BUILD_DIR)
-	echo "Running golangci-lint"
-	${GOPATH}/bin/golangci-lint --version
-	${GOPATH}/bin/golangci-lint run --verbose --tests=true --timeout=1m --config .github/linters/.golangci.yml \
-	  --issues-exit-code=0 --out-format=checkstyle > "$(LINTER_REPORT)"
-	cat $(LINTER_REPORT)
-
-.PHONY: lint
-lint: golangcilint
+.PHONY: build
+build: prebuild
+	@echo "build"
+	$(GOBUILD) $(GOFLAGS) -ldflags="$(LDFLAGS)" ./aws/...
 
 .PHONY: gitleaks
 gitleaks: init $(BUILD_DIR)
 	@echo "Running gitleaks"
 	gitleaks detect --config=.github/linters/.gitleaks.toml --source=. --redact --log-level=debug --report-format=json \
 	  --report-path=$(BUILD_DIR)/gitleaks-$(BUILD_TS).out --verbose
+
+.PHONY: golangcilint
+golangcilint: init $(BUILD_DIR)
+	echo "Running golangci-lint"
+	${GOBIN}/golangci-lint --version
+	${GOBIN}/golangci-lint run --verbose --tests=true --timeout=1m --config .github/linters/.golangci.yml \
+	  --issues-exit-code=0 > "$(LINTER_REPORT)"
+	cat $(LINTER_REPORT)
+
+.PHONY: linters
+linters: golangcilint gitleaks
 
 .PHONY: fuzz
 fuzz: init
@@ -145,6 +148,9 @@ unit: init $(BUILD_DIR)
 .PHONY: tests
 tests: unit race # fuzz
 
+.PHONY: all
+all: linters tests
+
 .PHONY: pre-commit
 pre-commit: init
 	pre-commit run --all-files
@@ -164,6 +170,7 @@ usage:
 	@echo "  fuzz - run all fuzz tests"
 	@echo "  race - run all race tests"
 	@echo "  unit - run all unit tests"
+	@echo "  all - run build, linters, and tests"
 	@echo "  usage - show this information"
 
 .PHONY: help

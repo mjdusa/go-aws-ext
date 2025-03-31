@@ -12,7 +12,7 @@ type mockSMClient struct {
 }
 
 func NewMockSMClient(resp *secretsmanager.GetSecretValueOutput,
-	err error) mockSMClient { //nolint:revive // use only with mock
+	err error) mockSMClient { //nolint:revive,nolintlint // use only with mock
 	return mockSMClient{ //nolint:exhaustruct // mockSMClient is a mock for testing only
 		Response: resp,
 		Error:    err,

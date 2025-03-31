@@ -59,7 +59,7 @@ func Test_GetSecretString_GoodString(t *testing.T) {
 
 	actual, err := f.GetSecretString("foo")
 
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, expected, *actual)
 }
 
@@ -74,7 +74,7 @@ func Test_GetSecretString_DecodeError(t *testing.T) {
 
 	actual, err := f.GetSecretString("foo")
 
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 	assert.Equal(t, "Decode error: illegal base64 data at input byte 0", err.Error())
 	assert.Nil(t, actual)
 }
@@ -93,7 +93,7 @@ func Test_GetSecretString_GoodBinary(t *testing.T) {
 
 	actual, err := f.GetSecretString("foo")
 
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, expected, *actual)
 }
 
@@ -108,8 +108,8 @@ func Test_Nil_GetSecretString(t *testing.T) {
 
 	actual, err := f.GetSecretString("foo")
 
-	assert.Nil(t, err)
-	assert.Equal(t, "", *actual)
+	assert.NoError(t, err)
+	assert.Empty(t, *actual)
 }
 
 func Test_GetSecretString_Error(t *testing.T) {
@@ -122,7 +122,7 @@ func Test_GetSecretString_Error(t *testing.T) {
 
 	actual, err := f.GetSecretString("foo")
 
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 	assert.Equal(t, expectedErrorMessage, err.Error())
 	assert.Nil(t, actual)
 }

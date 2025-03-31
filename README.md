@@ -69,5 +69,7 @@ docker run --rm -e RUN_LOCAL=true --env-file ".github/super-linter.env" -v $PWD:
 ### Running golangci-lint Locally
 
 ```bash
-golangci-lint run --verbose --tests=true --config=.github/linters/.golangci.yml --issues-exit-code=0 --out-format=checkstyle
+curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.0.2
+
+$(go env GOPATH)/bin/golangci-lint run --verbose --tests=true --config=.github/linters/.golangci.yml --issues-exit-code=0 --out-format=checkstyle
 ```
