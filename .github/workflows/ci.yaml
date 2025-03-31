@@ -138,4 +138,4 @@ jobs:
         with:
           name: test-reports
           path: ./coverage.*
-          retention-days: 180
+          retention-days: 90

@@ -34,6 +34,7 @@ tmp/
 vendor/
 
 # build artifacts
+bld/
 build/
 dist/
 junit_results.xml
